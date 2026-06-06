@@ -1,271 +1,154 @@
 import streamlit as st
 
-# =========================
-# KONFIGURASI HALAMAN
-# =========================
 st.set_page_config(
-    page_title="Sistem Evaluasi Kadar COD Air",
+    page_title="Evaluasi Kadar COD",
     page_icon="💧",
-    layout="wide"
+    layout="centered"
 )
 
-# =========================
+# ====================
 # CSS
-# =========================
+# ====================
 st.markdown("""
 <style>
 
 .stApp{
-    background: linear-gradient(135deg,#74ebd5,#ACB6E5);
+background-image:url(
+'https://images.unsplash.com/photo-1513828583688-c52646db42da');
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
 }
 
 .block-container{
-    background: rgba(255,255,255,0.92);
-    padding: 2rem;
-    border-radius: 20px;
-}
-
-h1,h2,h3{
-    color:#003366;
+background: rgba(255,255,255,0.92);
+padding: 2rem;
+border-radius: 20px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# =========================
-# SIDEBAR
-# =========================
-menu = st.sidebar.radio(
-    "📌 Pilih Menu",
-    [
-        "🏠 Beranda",
-        "🧮 Perhitungan COD",
-        "📊 Klasifikasi Mutu Air",
-        "🌊 Sarana Pengolahan Air",
-        "ℹ️ Tentang COD"
-    ]
+# ====================
+# JUDUL
+# ====================
+st.title("💧 Evaluasi Kadar COD Air")
+st.subheader("Berdasarkan PP Nomor 22 Tahun 2021")
+
+st.markdown("---")
+
+# ====================
+# INPUT
+# ====================
+nama = st.text_input(
+    "Nama Sampel"
 )
 
-# =========================
-# BERANDA
-# =========================
-if menu == "🏠 Beranda":
+cod = st.number_input(
+    "Masukkan Hasil COD (mg/L)",
+    min_value=0.0,
+    format="%.2f"
+)
 
-    st.title("💧 SISTEM EVALUASI KADAR COD AIR")
+# ====================
+# PROSES
+# ====================
+if st.button("Evaluasi"):
 
-    st.markdown("""
-    ### Selamat Datang
+    st.markdown("## Hasil Evaluasi")
 
-    Aplikasi ini digunakan untuk:
-
-    - Menghitung efisiensi penurunan COD
-    - Menentukan kelas mutu air
-    - Membandingkan hasil dengan PP No. 22 Tahun 2021
-    - Membantu evaluasi kualitas air
-
-    ---
-    """)
-
-    st.info(
-        "PP Nomor 22 Tahun 2021 digunakan sebagai acuan "
-        "baku mutu air nasional."
-    )
-
-# =========================
-# PERHITUNGAN COD
-# =========================
-elif menu == "🧮 Perhitungan COD":
-
-    st.title("🧮 Perhitungan COD")
-
-    nama = st.text_input("Nama Sampel")
-
-    inlet = st.number_input(
-        "COD Inlet (mg/L)",
-        min_value=0.0
-    )
-
-    outlet = st.number_input(
-        "COD Outlet (mg/L)",
-        min_value=0.0
-    )
-
-    if st.button("Hitung COD"):
-
-        if inlet == 0:
-            st.warning("Masukkan COD Inlet terlebih dahulu")
-
-        else:
-
-            efisiensi = (
-                (inlet - outlet)
-                / inlet
-            ) * 100
-
-            st.success(
-                f"Efisiensi Pengolahan = {efisiensi:.2f}%"
-            )
-
-            st.write(
-                f"COD Outlet = {outlet:.2f} mg/L"
-            )
-
-            if outlet <= 10:
-                st.success(
-                    "Memenuhi Baku Mutu Air Kelas 1"
-                )
-
-            else:
-                st.error(
-                    "Tidak Memenuhi Baku Mutu Air Kelas 1"
-                )
-
-# =========================
-# KLASIFIKASI MUTU AIR
-# =========================
-elif menu == "📊 Klasifikasi Mutu Air":
-
-    st.title("📊 Klasifikasi Mutu Air")
-
-    cod = st.number_input(
-        "Masukkan Nilai COD (mg/L)",
-        min_value=0.0
-    )
-
-    if st.button("Evaluasi"):
-
-        if cod <= 10:
-
-            st.success("""
-            KELAS 1
-
-            Air Baku Air Minum
-
-            COD ≤ 10 mg/L
-            """)
-
-        elif cod <= 25:
-
-            st.success("""
-            KELAS 2
-
-            Rekreasi Air,
-            Budidaya Ikan Air Tawar
-
-            COD ≤ 25 mg/L
-            """)
-
-        elif cod <= 50:
-
-            st.success("""
-            KELAS 3
-
-            Peternakan,
-            Perikanan,
-            Irigasi
-
-            COD ≤ 50 mg/L
-            """)
-
-        elif cod <= 100:
-
-            st.success("""
-            KELAS 4
-
-            Pertanian
-
-            COD ≤ 100 mg/L
-            """)
-
-        else:
-
-            st.error("""
-            COD > 100 mg/L
-
-            Tidak memenuhi
-            Kelas 1–4
-            """)
+    st.write(f"**Nama Sampel:** {nama}")
+    st.write(f"**COD:** {cod:.2f} mg/L")
 
     st.markdown("---")
 
-    st.subheader("Tabel Acuan PP No.22 Tahun 2021")
+    if cod <= 10:
 
-    st.table({
-        "Kelas": [
-            "Kelas 1",
-            "Kelas 2",
-            "Kelas 3",
-            "Kelas 4"
-        ],
-        "Peruntukan": [
-            "Air Baku Air Minum",
-            "Rekreasi Air",
-            "Perikanan",
-            "Pertanian"
-        ],
-        "COD (mg/L)": [
-            "≤10",
-            "≤25",
-            "≤50",
-            "≤100"
-        ]
-    })
+        st.success(
+            "KELAS 1"
+        )
 
-# =========================
-# SARANA PENGOLAHAN AIR
-# =========================
-elif menu == "🌊 Sarana Pengolahan Air":
+        st.info("""
+        Peruntukan:
+        - Air baku air minum
+        - Memenuhi baku mutu COD ≤ 10 mg/L
+        """)
 
-    st.title("🌊 Sarana Pengolahan Air")
+    elif cod <= 25:
 
-    st.subheader("1. Koagulasi")
-    st.write(
-        "Proses penambahan koagulan "
-        "untuk menggumpalkan partikel."
-    )
+        st.success(
+            "KELAS 2"
+        )
 
-    st.subheader("2. Flokulasi")
-    st.write(
-        "Proses pembentukan flok "
-        "agar mudah diendapkan."
-    )
+        st.info("""
+        Peruntukan:
+        - Sarana rekreasi air
+        - Budidaya ikan air tawar
+        - Peternakan
+        - COD ≤ 25 mg/L
+        """)
 
-    st.subheader("3. Sedimentasi")
-    st.write(
-        "Mengendapkan flok yang terbentuk."
-    )
+    elif cod <= 50:
 
-    st.subheader("4. Filtrasi")
-    st.write(
-        "Menyaring partikel tersisa."
-    )
+        st.success(
+            "KELAS 3"
+        )
 
-    st.subheader("5. Desinfeksi")
-    st.write(
-        "Membunuh mikroorganisme patogen."
-    )
+        st.info("""
+        Peruntukan:
+        - Perikanan
+        - Peternakan
+        - Irigasi
+        - COD ≤ 50 mg/L
+        """)
 
-# =========================
-# TENTANG COD
-# =========================
-elif menu == "ℹ️ Tentang COD":
+    elif cod <= 100:
 
-    st.title("ℹ️ Tentang COD")
+        st.success(
+            "KELAS 4"
+        )
 
-    st.write("""
-    Chemical Oxygen Demand (COD)
-    adalah jumlah oksigen yang
-    diperlukan untuk mengoksidasi
-    senyawa organik dalam air
-    secara kimia.
+        st.info("""
+        Peruntukan:
+        - Pertanian
+        - Irigasi
+        - COD ≤ 100 mg/L
+        """)
 
-    Semakin tinggi COD,
-    semakin tinggi tingkat
-    pencemaran bahan organik.
-    """)
+    else:
 
-    st.info(
-        "Parameter COD sering digunakan "
-        "untuk evaluasi kualitas air "
-        "dan air limbah."
-    )
+        st.error(
+            "Tidak Memenuhi Kelas 1–4"
+        )
+
+        st.warning(
+            "COD > 100 mg/L"
+        )
+
+# ====================
+# TABEL ACUAN
+# ====================
+st.markdown("---")
+
+st.subheader("Tabel Acuan PP No. 22 Tahun 2021")
+
+st.table({
+    "Kelas":[
+        "Kelas 1",
+        "Kelas 2",
+        "Kelas 3",
+        "Kelas 4"
+    ],
+    "Peruntukan":[
+        "Air Baku Air Minum",
+        "Rekreasi Air",
+        "Perikanan/Peternakan",
+        "Pertanian"
+    ],
+    "COD (mg/L)":[
+        "≤ 10",
+        "≤ 25",
+        "≤ 50",
+        "≤ 100"
+    ]
+})
