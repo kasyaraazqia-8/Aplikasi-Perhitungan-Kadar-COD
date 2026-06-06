@@ -15,34 +15,55 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* ===== BACKGROUND GAMBAR ===== */
-.stApp {
+st.markdown("""
+<style>
+
+/* ===== BACKGROUND GAMBAR (FIX) ===== */
+[data-testid="stAppViewContainer"] {
     background-image: url("https://images.unsplash.com/photo-1587502536263-9298a8c4c1c1?auto=format&fit=crop&w=1600&q=80");
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-/* ===== CONTAINER GLASS ===== */
+/* overlay biar teks tetap kebaca */
+[data-testid="stAppViewContainer"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.35);
+    z-index: 0;
+}
+
+/* isi konten di atas overlay */
+.main {
+    position: relative;
+    z-index: 1;
+}
+
+/* card efek kaca */
 .block-container {
-    background: rgba(255,255,255,0.82);
+    background: rgba(255,255,255,0.85);
     padding: 2rem;
     border-radius: 20px;
     backdrop-filter: blur(10px);
     box-shadow: 0px 6px 25px rgba(0,0,0,0.2);
 }
 
-/* ===== TEXT STYLE ===== */
 h1,h2,h3 {
     color:#003366;
 }
 
-/* ===== SIDEBAR ===== */
+/* sidebar */
 section[data-testid="stSidebar"] {
     background: rgba(255,255,255,0.75);
 }
 
-/* ===== BUBBLE ANIMATION ===== */
+/* bubble animation */
 .bubble {
     position: fixed;
     bottom: -100px;
@@ -51,6 +72,7 @@ section[data-testid="stSidebar"] {
     background: rgba(255,255,255,0.35);
     border-radius: 50%;
     animation: rise 12s infinite ease-in;
+    z-index: 0;
 }
 
 .bubble:nth-child(1){left:10%; animation-duration:8s;}
@@ -75,6 +97,7 @@ section[data-testid="stSidebar"] {
 <div class="bubble"></div>
 <div class="bubble"></div>
 
+""", unsafe_allow_html=True)
 """, unsafe_allow_html=True)
 
 # =========================
