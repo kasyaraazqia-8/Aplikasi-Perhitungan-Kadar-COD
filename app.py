@@ -1,83 +1,75 @@
 import streamlit as st
-import base64
 
 # =====================================
 # KONFIGURASI HALAMAN
 # =====================================
 st.set_page_config(
-    page_title="Sistem Perhitungan COD Air",
+    page_title="Sistem Perhitungan Kadar COD Air",
     page_icon="💧",
     layout="wide"
 )
 
 # =====================================
-# MEMBACA BACKGROUND
+# CSS & BACKGROUND
 # =====================================
-def get_base64(file_path):
-    with open(file_path, "rb") as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
-bg_img = get_base64("background.jpg")
-
-# =====================================
-# CSS
-# =====================================
-st.markdown(
-    f"""
+st.markdown("""
 <style>
 
-.stApp {{
-    background-image: url("data:image/jpg;base64,{bg_img}");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}}
+/* Background */
+.stApp{
+    background-image:url("https://images.unsplash.com/photo-1527066236128-2ff79f7b9705?auto=format&fit=crop&w=1600&q=80");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+}
 
-.block-container {{
-    background: rgba(255,255,255,0.85);
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
-}}
+/* Overlay agar teks mudah dibaca */
+.stApp::before{
+    content:"";
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.25);
+    z-index:-1;
+}
 
-[data-testid="stSidebar"] {{
-    background: linear-gradient(
-        180deg,
-        #003366,
-        #006699
-    );
-}}
+/* Konten utama */
+.block-container{
+    background:rgba(255,255,255,0.88);
+    padding:2rem;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.25);
+}
 
-[data-testid="stSidebar"] * {{
-    color: white;
-}}
+/* Sidebar */
+[data-testid="stSidebar"]{
+    background:linear-gradient(180deg,#003366,#0088cc);
+}
 
-h1,h2,h3 {{
-    color:#003366;
-}}
-
-.stButton > button {{
-    background-color:#0099ff;
+[data-testid="stSidebar"] *{
     color:white;
-    border:none;
+}
+
+/* Judul */
+h1,h2,h3{
+    color:#003366;
+}
+
+/* Tombol */
+.stButton > button{
+    width:100%;
     border-radius:10px;
     font-weight:bold;
-    width:100%;
-}}
-
-.stButton > button:hover {{
-    background-color:#007acc;
-}}
+}
 
 </style>
-""",
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # =====================================
-# SIDEBAR
+# MENU
 # =====================================
 menu = st.sidebar.radio(
     "📌 Menu",
@@ -93,18 +85,18 @@ menu = st.sidebar.radio(
 # =====================================
 if menu == "🏠 Beranda":
 
-    st.title("💧 SISTEM PERHITUNGAN KADAR COD AIR")
+    st.title("💧 Sistem Perhitungan Kadar COD Air")
 
     st.markdown("""
     ### Selamat Datang
 
     Aplikasi ini digunakan untuk:
 
-    ✅ Menghitung kadar COD dari data titrasi
+    ✅ Menghitung nilai COD dari data titrasi
 
-    ✅ Membandingkan hasil COD dengan baku mutu PP Nomor 22 Tahun 2021
+    ✅ Membandingkan hasil COD dengan baku mutu air
 
-    ✅ Menentukan kesesuaian kualitas air berdasarkan kelas air
+    ✅ Menentukan kesesuaian kualitas air berdasarkan PP Nomor 22 Tahun 2021
 
     ---
     """)
@@ -112,11 +104,11 @@ if menu == "🏠 Beranda":
     st.subheader("Rumus COD")
 
     st.latex(
-        r"COD=\frac{(A-B)\times N \times 8000}{V}"
+        r"COD=\frac{(A-B)\times N\times8000}{V}"
     )
 
     st.write("""
-    Keterangan:
+    **Keterangan:**
 
     - A = Volume blanko (mL)
     - B = Volume sampel (mL)
@@ -131,17 +123,15 @@ elif menu == "🧮 Perhitungan COD":
 
     st.title("🧮 Perhitungan COD")
 
-    nama = st.text_input(
-        "Nama Sampel"
-    )
+    nama = st.text_input("Nama Sampel")
 
     jenis_air = st.selectbox(
-        "Jenis Air",
+        "Pilih Jenis Air",
         [
             "Air Baku Air Minum (Kelas 1)",
             "Rekreasi Air (Kelas 2)",
             "Perikanan (Kelas 3)",
-            "Irigasi/Pertanian (Kelas 4)"
+            "Irigasi / Pertanian (Kelas 4)"
         ]
     )
 
@@ -187,18 +177,13 @@ elif menu == "🧮 Perhitungan COD":
 
         st.subheader("📋 Hasil Perhitungan")
 
-        st.write(
-            f"Nama Sampel : {nama}"
-        )
-
-        st.write(
-            f"Jenis Air : {jenis_air}"
-        )
+        st.write(f"**Nama Sampel:** {nama}")
+        st.write(f"**Jenis Air:** {jenis_air}")
 
         st.markdown("### Substitusi Rumus")
 
         st.latex(
-            rf"COD=\frac{{({A}-{B}) \times {N} \times 8000}}{{{V}}}"
+            rf"COD=\frac{{({A}-{B})\times{N}\times8000}}{{{V}}}"
         )
 
         st.success(
@@ -242,9 +227,7 @@ elif menu == "📚 Referensi":
 
     st.title("📚 Referensi Baku Mutu COD")
 
-    st.write(
-        "Acuan: PP Nomor 22 Tahun 2021"
-    )
+    st.write("Acuan: PP Nomor 22 Tahun 2021")
 
     st.table({
         "Kelas": [
@@ -268,11 +251,11 @@ elif menu == "📚 Referensi":
     })
 
     st.info("""
-Kelas 1 : Air baku air minum
+    Kelas 1 = Air baku air minum
 
-Kelas 2 : Rekreasi air
+    Kelas 2 = Rekreasi air
 
-Kelas 3 : Perikanan
+    Kelas 3 = Perikanan
 
-Kelas 4 : Irigasi/Pertanian
-""")
+    Kelas 4 = Irigasi/Pertanian
+    """)
