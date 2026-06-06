@@ -2,7 +2,7 @@ import streamlit as st
 
 # ================= SETTING =================
 st.set_page_config(
-    page_title="Aplikasi COD Air",
+    page_title="Aplikasi COD IPAL",
     page_icon="💧",
     layout="wide"
 )
@@ -27,13 +27,13 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-# ================= NAVIGASI =================
+# ================= MENU =================
 menu = st.sidebar.selectbox(
     "📌 Menu",
-    ["🏠 Beranda", "🧪 Analisis COD"]
+    ["🏠 Beranda", "🧪 Perhitungan COD"]
 )
 
-# ================= BAKU MUTU COD PP 22/2021 =================
+# ================= BAKU MUTU COD =================
 baku_mutu_cod = {
     "Kelas I": 10,
     "Kelas II": 25,
@@ -43,16 +43,16 @@ baku_mutu_cod = {
 
 # ================= BERANDA =================
 if menu == "🏠 Beranda":
-    st.title("💧 Aplikasi Analisis COD (Chemical Oxygen Demand)")
+    st.title("💧 Aplikasi Perhitungan COD IPAL")
 
     st.markdown("""
     <div class="card">
     <h3>Selamat Datang 👋</h3>
     Aplikasi ini digunakan untuk:
     <ul>
-        <li>Menganalisis nilai COD (mg/L)</li>
+        <li>Menghitung penurunan COD (inlet vs outlet)</li>
+        <li>Menghitung efisiensi IPAL (%)</li>
         <li>Membandingkan dengan baku mutu PP No. 22 Tahun 2021</li>
-        <li>Menentukan status: memenuhi / tidak memenuhi</li>
     </ul>
 
     <b>Satuan:</b> mg/L
@@ -60,66 +60,68 @@ if menu == "🏠 Beranda":
     """, unsafe_allow_html=True)
 
 # ================= ANALISIS COD =================
-elif menu == "🧪 Analisis COD":
+elif menu == "🧪 Perhitungan COD":
 
-    st.title("🧪 Analisis COD Air")
+    st.title("🧪 Perhitungan COD IPAL")
 
-    # -------- PILIH JENIS AIR --------
+    # -------- INPUT --------
     jenis_air = st.selectbox(
         "🌊 Jenis Air",
-        ["Inlet IPAL", "Outlet IPAL", "Air Sungai / Badan Air"]
+        ["Inlet IPAL", "Outlet IPAL"]
     )
 
-    # -------- PILIH KELAS --------
     kelas = st.selectbox(
-        "📌 Kelas Baku Mutu (PP 22/2021)",
+        "📌 Kelas Baku Mutu",
         list(baku_mutu_cod.keys())
     )
 
     st.markdown("---")
 
-    # -------- INPUT COD --------
-    cod = st.number_input("Masukkan nilai COD (mg/L)", min_value=0.0)
+    cod_in = st.number_input("COD Inlet (mg/L)", min_value=0.0)
+    cod_out = st.number_input("COD Outlet (mg/L)", min_value=0.0)
 
-    # ================= PROSES =================
-    if st.button("🔍 Analisis COD"):
+    # ================= HITUNG =================
+    if st.button("🔍 Hitung COD"):
 
         batas = baku_mutu_cod[kelas]
 
-        status_lolos = cod <= batas
+        # 📌 PERHITUNGAN
+        penurunan = cod_in - cod_out
 
-        st.markdown("## 📊 HASIL ANALISIS")
+        if cod_in != 0:
+            efisiensi = (penurunan / cod_in) * 100
+        else:
+            efisiensi = 0
+
+        # 📊 CEK BAKU MUTU (OUTLET YANG DINILAI)
+        status = cod_out <= batas
+
+        # ================= HASIL =================
+        st.markdown("## 📊 HASIL PERHITUNGAN")
 
         st.write(f"🌊 Jenis Air: **{jenis_air}**")
         st.write(f"📌 Kelas Acuan: **{kelas}**")
 
+        st.markdown("### 🧪 Hasil COD")
+
+        st.write("COD Inlet :", cod_in, "mg/L")
+        st.write("COD Outlet:", cod_out, "mg/L")
+
+        st.markdown("### 📉 Perhitungan")
+
+        st.write("Penurunan COD =", penurunan, "mg/L")
+        st.write("Efisiensi =", round(efisiensi, 2), "%")
+
         st.markdown("---")
 
-        # ================= HASIL =================
-        if status_lolos:
+        # ================= STATUS =================
+        if status:
             st.success("✅ MEMENUHI BAKU MUTU COD")
-
-            deskripsi = (
-                "Nilai COD masih berada di bawah ambang batas baku mutu. "
-                "Kualitas air tergolong aman sesuai PP No. 22 Tahun 2021."
-            )
+            kesimpulan = "COD outlet berada di bawah baku mutu, sehingga aman sesuai PP 22/2021."
         else:
             st.error("❌ TIDAK MEMENUHI BAKU MUTU COD")
+            kesimpulan = "COD outlet melebihi baku mutu, perlu pengolahan lanjutan IPAL."
 
-            deskripsi = (
-                "Nilai COD melebihi ambang batas baku mutu. "
-                "Menunjukkan adanya pencemaran organik yang tinggi dan perlu pengolahan IPAL."
-            )
+        st.info(kesimpulan)
 
-        st.info(deskripsi)
-
-        # ================= DETAIL =================
-        st.markdown("### 📌 Detail COD")
-
-        st.write("💧 COD aktual:", cod, "mg/L")
-        st.write("📏 Batas baku mutu:", batas, "mg/L")
-
-        if status_lolos:
-            st.write("Status: ✔ Sesuai standar")
-        else:
-            st.write("Status: ❌ Melebihi standar")
+        st.write(f"📏 Baku mutu kelas {kelas}: {batas} mg/L")
