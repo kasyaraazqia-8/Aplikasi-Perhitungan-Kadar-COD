@@ -1,5 +1,12 @@
 import streamlit as st
+import base64
 
+def get_base64(file_path):
+    with open(file_path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+bg_img = get_base64("background.jpg")
 # ======================================
 # KONFIGURASI HALAMAN
 # ======================================
@@ -16,68 +23,37 @@ st.markdown("""
 <style>
 
 /* Background Air */
-.stApp{
-    background-image:url("https://images.unsplash.com/photo-1544551763-46a013bb70d5");
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-attachment:fixed;
-}
+.stApp {{
+        background-image: url("data:image/jpg;base64,{bg_img}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
 
-/* Overlay */
-.stApp::before{
-    content:"";
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.20);
-    z-index:-1;
-}
+    .block-container {{
+        background: rgba(255,255,255,0.85);
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }}
 
-/* Kontainer */
-.block-container{
-    background:rgba(255,255,255,0.80);
-    padding:2rem;
-    border-radius:20px;
-    box-shadow:0px 0px 20px rgba(0,0,0,0.3);
-}
+    [data-testid="stSidebar"] {{
+        background: linear-gradient(180deg,#003366,#006699);
+    }}
 
-/* Sidebar */
-[data-testid="stSidebar"]{
-    background:linear-gradient(
-        180deg,
-        #003366,
-        #006699
-    );
-}
+    [data-testid="stSidebar"] * {{
+        color:white;
+    }}
 
-[data-testid="stSidebar"] *{
-    color:white;
-}
+    h1,h2,h3 {{
+        color:#003366;
+    }}
 
-/* Judul */
-h1,h2,h3{
-    color:#003366;
-}
-
-/* Tombol */
-.stButton > button{
-    background-color:#0099ff;
-    color:white;
-    border:none;
-    border-radius:10px;
-    font-weight:bold;
-    width:100%;
-}
-
-.stButton > button:hover{
-    background-color:#007acc;
-}
-
-</style>
-""", unsafe_allow_html=True)
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ======================================
 # SIDEBAR
