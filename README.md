@@ -1,1 +1,1 @@
-# Aplikasi-Perhitungan-Kadar-COD
+# Aplikasi-Perhitungan-Kadar-COD-kelas
