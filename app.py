@@ -1,82 +1,116 @@
 import streamlit as st
 
-# =====================================
+# ======================================
 # KONFIGURASI HALAMAN
-# =====================================
+# ======================================
 st.set_page_config(
-    page_title="Evaluasi Kadar COD Air",
+    page_title="Sistem Perhitungan COD Air",
     page_icon="💧",
     layout="wide"
 )
 
-# =====================================
-# CSS
-# =====================================
+# ======================================
+# CSS & BACKGROUND
+# ======================================
 st.markdown("""
 <style>
 
-.stApp{
-    background: linear-gradient(135deg,#74ebd5,#ACB6E5);
+/* Background air */
+.stApp {
+    background-image: url("https://images.unsplash.com/photo-1500375592092-40eb2168fd21");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
 
-.block-container{
+/* Kontainer utama */
+.block-container {
     background: rgba(255,255,255,0.92);
     padding: 2rem;
     border-radius: 20px;
 }
 
-[data-testid="stSidebar"]{
-    background-color:#003366;
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0066cc, #003366);
 }
 
-[data-testid="stSidebar"] *{
-    color:white;
+[data-testid="stSidebar"] * {
+    color: white;
 }
 
-h1,h2,h3{
-    color:#003366;
+/* Judul */
+h1, h2, h3 {
+    color: #003366;
+}
+
+/* Tombol */
+.stButton > button {
+    background-color: #0088cc;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# =====================================
+# ======================================
 # SIDEBAR
-# =====================================
+# ======================================
 menu = st.sidebar.radio(
-    "Menu",
+    "📌 Menu",
     [
         "🏠 Beranda",
-        "🧮 Evaluasi COD",
-        "📚 Referensi"
+        "🧮 Perhitungan COD",
+        "📚 Referensi Baku Mutu"
     ]
 )
 
-# =====================================
+# ======================================
 # BERANDA
-# =====================================
+# ======================================
 if menu == "🏠 Beranda":
 
-    st.title("💧 Sistem Evaluasi Kadar COD Air")
+    st.title("💧 Sistem Perhitungan dan Evaluasi COD Air")
 
     st.markdown("""
     ### Selamat Datang
 
-    Aplikasi ini digunakan untuk mengevaluasi kualitas air berdasarkan parameter **Chemical Oxygen Demand (COD)**.
+    Aplikasi ini digunakan untuk:
 
-    Hasil COD akan dibandingkan dengan baku mutu sesuai **PP Nomor 22 Tahun 2021** berdasarkan kelas dan peruntukan air.
+    ✅ Menghitung COD dari data titrasi
+
+    ✅ Membandingkan hasil COD dengan baku mutu
+
+    ✅ Menentukan kesesuaian kualitas air
+
+    ✅ Mengacu pada PP Nomor 22 Tahun 2021
+
+    ---
     """)
 
     st.info("""
-    Pilih menu Evaluasi COD untuk mulai melakukan penilaian kualitas air.
+    Rumus COD yang digunakan:
+
+    COD = ((A - B) × N × 8000) / V
+
+    A = Volume blanko (mL)
+
+    B = Volume sampel (mL)
+
+    N = Normalitas FAS
+
+    V = Volume sampel yang digunakan (mL)
     """)
 
-# =====================================
-# EVALUASI COD
-# =====================================
-elif menu == "🧮 Evaluasi COD":
+# ======================================
+# PERHITUNGAN COD
+# ======================================
+elif menu == "🧮 Perhitungan COD":
 
-    st.title("🧮 Evaluasi Kadar COD")
+    st.title("🧮 Perhitungan COD")
 
     nama = st.text_input("Nama Sampel")
 
@@ -90,13 +124,33 @@ elif menu == "🧮 Evaluasi COD":
         ]
     )
 
-    cod = st.number_input(
-        "Masukkan Nilai COD (mg/L)",
+    A = st.number_input(
+        "Volume Blanko (A) (mL)",
         min_value=0.0,
         format="%.2f"
     )
 
-    if st.button("Evaluasi"):
+    B = st.number_input(
+        "Volume Sampel (B) (mL)",
+        min_value=0.0,
+        format="%.2f"
+    )
+
+    N = st.number_input(
+        "Normalitas FAS (N)",
+        min_value=0.000,
+        format="%.3f"
+    )
+
+    V = st.number_input(
+        "Volume Sampel (V) (mL)",
+        min_value=0.1,
+        format="%.2f"
+    )
+
+    if st.button("Hitung COD"):
+
+        cod = ((A - B) * N * 8000) / V
 
         if "Kelas 1" in jenis_air:
             baku_mutu = 10
@@ -110,12 +164,26 @@ elif menu == "🧮 Evaluasi COD":
         else:
             baku_mutu = 100
 
-        st.subheader("📋 Hasil Evaluasi")
+        st.subheader("📋 Hasil Perhitungan")
 
-        st.write(f"**Nama Sampel:** {nama}")
-        st.write(f"**Jenis Air:** {jenis_air}")
-        st.write(f"**COD Hasil:** {cod:.2f} mg/L")
-        st.write(f"**Baku Mutu COD:** {baku_mutu} mg/L")
+        st.write(f"Nama Sampel : {nama}")
+        st.write(f"Jenis Air : {jenis_air}")
+
+        st.markdown("### Perhitungan")
+
+        st.latex(
+            rf"COD=\frac{{({A}-{B}) \times {N} \times 8000}}{{{V}}}"
+        )
+
+        st.success(
+            f"Hasil COD = {cod:.2f} mg/L"
+        )
+
+        st.markdown("### Evaluasi Baku Mutu")
+
+        st.write(
+            f"Baku Mutu COD = {baku_mutu} mg/L"
+        )
 
         if cod <= baku_mutu:
 
@@ -141,10 +209,10 @@ elif menu == "🧮 Evaluasi COD":
                 """
             )
 
-# =====================================
+# ======================================
 # REFERENSI
-# =====================================
-elif menu == "📚 Referensi":
+# ======================================
+elif menu == "📚 Referensi Baku Mutu":
 
     st.title("📚 Referensi Baku Mutu COD")
 
@@ -172,3 +240,15 @@ elif menu == "📚 Referensi":
             "≤ 100"
         ]
     })
+
+    st.info("""
+    Interpretasi:
+
+    Kelas 1 = Air baku air minum
+
+    Kelas 2 = Rekreasi air
+
+    Kelas 3 = Perikanan
+
+    Kelas 4 = Irigasi/Pertanian
+    """)
