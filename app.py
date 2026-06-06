@@ -10,15 +10,12 @@ st.set_page_config(
 )
 
 # =========================
-# CSS + BACKGROUND + ANIMASI
+# CSS + BACKGROUND + ANIMASI (FIXED)
 # =========================
 st.markdown("""
 <style>
 
-st.markdown("""
-<style>
-
-/* ===== BACKGROUND GAMBAR (FIX) ===== */
+/* ===== BACKGROUND GAMBAR FIX ===== */
 [data-testid="stAppViewContainer"] {
     background-image: url("https://images.unsplash.com/photo-1587502536263-9298a8c4c1c1?auto=format&fit=crop&w=1600&q=80");
     background-size: cover;
@@ -27,7 +24,7 @@ st.markdown("""
     background-attachment: fixed;
 }
 
-/* overlay biar teks tetap kebaca */
+/* ===== OVERLAY BIAR TULISAN JELAS ===== */
 [data-testid="stAppViewContainer"]::before {
     content: "";
     position: absolute;
@@ -39,13 +36,13 @@ st.markdown("""
     z-index: 0;
 }
 
-/* isi konten di atas overlay */
+/* ===== KONTEN DI ATAS BACKGROUND ===== */
 .main {
     position: relative;
     z-index: 1;
 }
 
-/* card efek kaca */
+/* ===== GLASS EFFECT ===== */
 .block-container {
     background: rgba(255,255,255,0.85);
     padding: 2rem;
@@ -54,16 +51,17 @@ st.markdown("""
     box-shadow: 0px 6px 25px rgba(0,0,0,0.2);
 }
 
+/* ===== TEXT ===== */
 h1,h2,h3 {
     color:#003366;
 }
 
-/* sidebar */
+/* ===== SIDEBAR ===== */
 section[data-testid="stSidebar"] {
     background: rgba(255,255,255,0.75);
 }
 
-/* bubble animation */
+/* ===== ANIMASI BUBBLE ===== */
 .bubble {
     position: fixed;
     bottom: -100px;
@@ -98,7 +96,6 @@ section[data-testid="stSidebar"] {
 <div class="bubble"></div>
 
 """, unsafe_allow_html=True)
-""", unsafe_allow_html=True)
 
 # =========================
 # SIDEBAR MENU
@@ -115,7 +112,7 @@ menu = st.sidebar.radio(
 )
 
 # =========================
-# BAKU MUTU COD (PP 22/2021)
+# BAKU MUTU COD PP 22/2021
 # =========================
 baku_mutu = {
     "Kelas 1 (Air baku minum)": 10,
@@ -132,19 +129,18 @@ if menu == "🏠 Beranda":
     st.title("💧 SISTEM EVALUASI KADAR COD AIR")
 
     st.markdown("""
-    ### Selamat Datang
+    ### Selamat Datang 👋
 
     Aplikasi ini digunakan untuk:
 
-    - Menghitung efisiensi penurunan COD
-    - Menentukan kelas mutu air
-    - Membandingkan hasil dengan PP No. 22 Tahun 2021
-    - Evaluasi kualitas air berbasis IPAL
+    - Menghitung COD inlet & outlet
+    - Menghitung efisiensi IPAL
+    - Evaluasi baku mutu air (PP 22 Tahun 2021)
 
     ---
 
-    🌊 **Kelas Air:**
-    - Kelas 1 → Air minum (paling ketat)
+    🌊 Kelas Air:
+    - Kelas 1 → Air minum
     - Kelas 2 → Rekreasi & perikanan
     - Kelas 3 → Budidaya ikan
     - Kelas 4 → Irigasi
@@ -156,8 +152,6 @@ if menu == "🏠 Beranda":
 elif menu == "🧮 Perhitungan COD":
 
     st.title("🧮 Perhitungan COD IPAL")
-
-    nama = st.text_input("Nama Sampel")
 
     kelas = st.selectbox(
         "📌 Pilih Kelas Baku Mutu",
@@ -171,28 +165,21 @@ elif menu == "🧮 Perhitungan COD":
 
         batas = baku_mutu[kelas]
 
-        if inlet == 0:
-            st.warning("COD inlet tidak boleh 0")
+        penurunan = inlet - outlet
+        efisiensi = (penurunan / inlet * 100) if inlet > 0 else 0
+
+        st.markdown("## 📊 HASIL")
+
+        st.write("COD Inlet:", inlet, "mg/L")
+        st.write("COD Outlet:", outlet, "mg/L")
+        st.write("Penurunan:", penurunan, "mg/L")
+        st.write("Efisiensi:", round(efisiensi, 2), "%")
+        st.write("Baku Mutu:", batas, "mg/L")
+
+        if outlet <= batas:
+            st.success("✅ MEMENUHI BAKU MUTU")
         else:
-
-            penurunan = inlet - outlet
-            efisiensi = (penurunan / inlet) * 100
-
-            st.markdown("## 📊 HASIL")
-
-            st.write("Nama Sampel:", nama)
-            st.write("COD Inlet:", inlet, "mg/L")
-            st.write("COD Outlet:", outlet, "mg/L")
-
-            st.write("Penurunan COD:", penurunan, "mg/L")
-            st.write("Efisiensi:", round(efisiensi, 2), "%")
-
-            st.write("Baku Mutu:", batas, "mg/L")
-
-            if outlet <= batas:
-                st.success("✅ MEMENUHI BAKU MUTU")
-            else:
-                st.error("❌ TIDAK MEMENUHI BAKU MUTU")
+            st.error("❌ TIDAK MEMENUHI BAKU MUTU")
 
 # =========================
 # KLASIFIKASI MUTU AIR
@@ -214,7 +201,7 @@ elif menu == "📊 Klasifikasi Mutu Air":
         elif cod <= 100:
             st.success("Kelas 4 - Irigasi")
         else:
-            st.error("❌ Di atas baku mutu")
+            st.error("❌ Melebihi baku mutu")
 
 # =========================
 # SARANA PENGOLAHAN AIR
@@ -228,7 +215,7 @@ elif menu == "🌊 Sarana Pengolahan Air":
     - Flokulasi → pembentukan flok
     - Sedimentasi → pengendapan
     - Filtrasi → penyaringan
-    - Desinfeksi → pembunuhan mikroorganisme
+    - Desinfeksi → membunuh mikroorganisme
     """)
 
 # =========================
@@ -246,4 +233,4 @@ elif menu == "ℹ️ Tentang COD":
     Semakin tinggi COD → semakin tercemar air.
     """)
 
-    st.info("Parameter penting untuk evaluasi IPAL dan kualitas air")
+    st.info("Parameter penting untuk evaluasi kualitas air & IPAL")
