@@ -1,107 +1,63 @@
-import streamlit as st
+st.title("📊 Evaluasi Kualitas Air vs Baku Mutu PP 22/2021")
 
-# ---------------- SETTING UI ----------------
-st.set_page_config(page_title="Aplikasi COD Air", page_icon="💧", layout="wide")
-
-# Background CSS biar tidak kosong
-page_bg = """
-<style>
-.stApp {
-    background: linear-gradient(to right, #dbeafe, #f0f9ff);
-}
-h1, h2, h3 {
-    color: #0f172a;
-}
-.card {
-    background-color: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-}
-</style>
-"""
-st.markdown(page_bg, unsafe_allow_html=True)
-
-# ---------------- SIDEBAR NAVIGASI ----------------
-menu = st.sidebar.selectbox(
-    "📌 Navigasi",
-    ["🏠 Beranda", "🧪 Kalkulator COD", "📊 Info Baku Mutu"]
+# ---------------- PILIH JENIS AIR ----------------
+jenis_air = st.selectbox(
+    "🌊 Pilih jenis air",
+    ["Inlet IPAL", "Outlet IPAL", "Air Sungai / Badan Air"]
 )
 
-# ---------------- DATA BAKU MUTU PP 22/2021 ----------------
+# ---------------- PILIH KELAS AIR ----------------
+kelas = st.selectbox(
+    "📌 Pilih kelas baku mutu",
+    ["Kelas I", "Kelas II", "Kelas III", "Kelas IV"]
+)
+
+# ---------------- INPUT PARAMETER ----------------
+cod = st.number_input("COD (mg/L)")
+bod = st.number_input("BOD (mg/L)")
+tss = st.number_input("TSS (mg/L)")
+
+# ---------------- NILAI BAKU MUTU (SIMPLIFIKASI UMUM) ----------------
 baku_mutu = {
-    "Kelas I (Air baku air minum)": 10,
-    "Kelas II (Wisata/rekreasi)": 25,
-    "Kelas III (Perikanan)": 50,
-    "Kelas IV (Pertanian/irigasi)": 100
+    "Kelas I": {"COD": 10, "BOD": 2, "TSS": 50},
+    "Kelas II": {"COD": 25, "BOD": 3, "TSS": 50},
+    "Kelas III": {"COD": 50, "BOD": 6, "TSS": 100},
+    "Kelas IV": {"COD": 100, "BOD": 12, "TSS": 400}
 }
 
-# ---------------- BERANDA ----------------
-if menu == "🏠 Beranda":
-    st.title("💧 Aplikasi Perhitungan COD Air Limbah")
-    
-    st.markdown("""
-    <div class="card">
-    <h3>Selamat datang 👋</h3>
-    Aplikasi ini digunakan untuk:
-    <ul>
-        <li>Menghitung nilai COD (Chemical Oxygen Demand)</li>
-        <li>Membandingkan hasil dengan baku mutu PP No. 22 Tahun 2021</li>
-        <li>Mengklasifikasikan kualitas air</li>
-    </ul>
-    <b>Satuan hasil:</b> mg/L
-    </div>
-    """, unsafe_allow_html=True)
+# ---------------- EVALUASI ----------------
+if st.button("🔍 Analisis Kualitas Air"):
 
-# ---------------- KALKULATOR COD ----------------
-elif menu == "🧪 Kalkulator COD":
-    st.title("🧪 Kalkulator COD Inlet - Outlet")
+    batas = baku_mutu[kelas]
 
-    st.markdown("Masukkan nilai COD dari hasil pengukuran:")
+    hasil = {}
 
-    cod_inlet = st.number_input("COD Inlet (mg/L)", min_value=0.0)
-    cod_outlet = st.number_input("COD Outlet (mg/L)", min_value=0.0)
+    hasil["COD"] = cod <= batas["COD"]
+    hasil["BOD"] = bod <= batas["BOD"]
+    hasil["TSS"] = tss <= batas["TSS"]
 
-    if st.button("Hitung COD"):
-        if cod_inlet > 0:
+    lolos_semua = all(hasil.values())
 
-            penurunan = cod_inlet - cod_outlet
-            efisiensi = (penurunan / cod_inlet) * 100
+    st.subheader("📊 HASIL ANALISIS")
 
-            st.success(f"Penurunan COD = {penurunan:.2f} mg/L")
-            st.success(f"Efisiensi penyisihan = {efisiensi:.2f} %")
+    st.write(f"🌊 Jenis Air: **{jenis_air}**")
+    st.write(f"📌 Dibandingkan dengan: **{kelas}**")
 
-            # Klasifikasi outlet berdasarkan PP 22/2021
-            if cod_outlet <= 10:
-                status = "Kelas I (Sangat baik)"
-            elif cod_outlet <= 25:
-                status = "Kelas II"
-            elif cod_outlet <= 50:
-                status = "Kelas III"
-            elif cod_outlet <= 100:
-                status = "Kelas IV"
-            else:
-                status = "Di atas baku mutu (tercemar)"
+    st.markdown("---")
 
-            st.info(f"Kualitas air outlet: {status}")
+    # ---------------- STATUS UTAMA ----------------
+    if lolos_semua:
+        st.success("✅ AIR MEMENUHI BAKU MUTU")
+        deskripsi = "Kualitas air masih berada dalam batas aman sesuai PP No. 22 Tahun 2021."
+    else:
+        st.error("❌ AIR TIDAK MEMENUHI BAKU MUTU")
+        deskripsi = "Kualitas air melebihi salah satu atau lebih parameter baku mutu sehingga perlu pengolahan lanjutan."
 
-        else:
-            st.error("COD inlet tidak boleh 0")
+    st.info(deskripsi)
 
-# ---------------- INFO BAKU MUTU ----------------
-elif menu == "📊 Info Baku Mutu":
-    st.title("📊 Baku Mutu COD (PP No. 22 Tahun 2021)")
+    # ---------------- DETAIL PARAMETER ----------------
+    st.markdown("### 📌 Detail Parameter")
 
-    st.markdown("""
-    <div class="card">
-    <h3>Standar COD berdasarkan kelas air:</h3>
-    </div>
-    """, unsafe_allow_html=True)
-
-    for k, v in baku_mutu.items():
-        st.write(f"💧 **{k}** : {v} mg/L")
-
-    st.markdown("""
-    <br>
-    <i>Sumber: PP No. 22 Tahun 2021 tentang Penyelenggaraan Perlindungan dan Pengelolaan Lingkungan Hidup</i>
-    """, unsafe_allow_html=True)
+    st.write("💧 COD:", cod, "mg/L →", "✔" if hasil["COD"] else "❌")
+    st.write("🧪 BOD:", bod, "mg/L →", "✔" if hasil["BOD"] else "❌")
+    st.write("🌫 TSS:", tss, "mg/L →", "✔" if hasil["TSS"] else "❌")
