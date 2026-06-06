@@ -1,237 +1,107 @@
 import streamlit as st
 
-# ==================================
-# KONFIGURASI HALAMAN
-# ==================================
-st.set_page_config(
-    page_title="Sistem Evaluasi COD Air",
-    page_icon="💧",
-    layout="wide"
-)
+# ---------------- SETTING UI ----------------
+st.set_page_config(page_title="Aplikasi COD Air", page_icon="💧", layout="wide")
 
-# ==================================
-# CSS
-# ==================================
-st.markdown("""
+# Background CSS biar tidak kosong
+page_bg = """
 <style>
-
-.stApp{
-    background: linear-gradient(135deg,#74ebd5,#ACB6E5);
+.stApp {
+    background: linear-gradient(to right, #dbeafe, #f0f9ff);
 }
-
-.block-container{
-    background-color: rgba(255,255,255,0.92);
-    padding: 2rem;
-    border-radius: 20px;
+h1, h2, h3 {
+    color: #0f172a;
 }
-
-h1,h2,h3{
-    color:#003366;
+.card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
 }
-
-[data-testid="stSidebar"]{
-    background-color:#003366;
-}
-
-[data-testid="stSidebar"] *{
-    color:white;
-}
-
 </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(page_bg, unsafe_allow_html=True)
 
-# ==================================
-# SIDEBAR
-# ==================================
-menu = st.sidebar.radio(
-    "📌 Menu",
-    [
-        "🏠 Beranda",
-        "🧮 Evaluasi COD",
-        "🌊 Sarana Pengolahan Air",
-        "ℹ️ Tentang COD"
-    ]
+# ---------------- SIDEBAR NAVIGASI ----------------
+menu = st.sidebar.selectbox(
+    "📌 Navigasi",
+    ["🏠 Beranda", "🧪 Kalkulator COD", "📊 Info Baku Mutu"]
 )
 
-# ==================================
-# BERANDA
-# ==================================
-if menu == "🏠 Beranda":
+# ---------------- DATA BAKU MUTU PP 22/2021 ----------------
+baku_mutu = {
+    "Kelas I (Air baku air minum)": 10,
+    "Kelas II (Wisata/rekreasi)": 25,
+    "Kelas III (Perikanan)": 50,
+    "Kelas IV (Pertanian/irigasi)": 100
+}
 
-    st.title("💧 SISTEM EVALUASI KADAR COD AIR")
+# ---------------- BERANDA ----------------
+if menu == "🏠 Beranda":
+    st.title("💧 Aplikasi Perhitungan COD Air Limbah")
+    
+    st.markdown("""
+    <div class="card">
+    <h3>Selamat datang 👋</h3>
+    Aplikasi ini digunakan untuk:
+    <ul>
+        <li>Menghitung nilai COD (Chemical Oxygen Demand)</li>
+        <li>Membandingkan hasil dengan baku mutu PP No. 22 Tahun 2021</li>
+        <li>Mengklasifikasikan kualitas air</li>
+    </ul>
+    <b>Satuan hasil:</b> mg/L
+    </div>
+    """, unsafe_allow_html=True)
+
+# ---------------- KALKULATOR COD ----------------
+elif menu == "🧪 Kalkulator COD":
+    st.title("🧪 Kalkulator COD Inlet - Outlet")
+
+    st.markdown("Masukkan nilai COD dari hasil pengukuran:")
+
+    cod_inlet = st.number_input("COD Inlet (mg/L)", min_value=0.0)
+    cod_outlet = st.number_input("COD Outlet (mg/L)", min_value=0.0)
+
+    if st.button("Hitung COD"):
+        if cod_inlet > 0:
+
+            penurunan = cod_inlet - cod_outlet
+            efisiensi = (penurunan / cod_inlet) * 100
+
+            st.success(f"Penurunan COD = {penurunan:.2f} mg/L")
+            st.success(f"Efisiensi penyisihan = {efisiensi:.2f} %")
+
+            # Klasifikasi outlet berdasarkan PP 22/2021
+            if cod_outlet <= 10:
+                status = "Kelas I (Sangat baik)"
+            elif cod_outlet <= 25:
+                status = "Kelas II"
+            elif cod_outlet <= 50:
+                status = "Kelas III"
+            elif cod_outlet <= 100:
+                status = "Kelas IV"
+            else:
+                status = "Di atas baku mutu (tercemar)"
+
+            st.info(f"Kualitas air outlet: {status}")
+
+        else:
+            st.error("COD inlet tidak boleh 0")
+
+# ---------------- INFO BAKU MUTU ----------------
+elif menu == "📊 Info Baku Mutu":
+    st.title("📊 Baku Mutu COD (PP No. 22 Tahun 2021)")
 
     st.markdown("""
-    ### Selamat Datang
+    <div class="card">
+    <h3>Standar COD berdasarkan kelas air:</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
-    Aplikasi ini digunakan untuk:
+    for k, v in baku_mutu.items():
+        st.write(f"💧 **{k}** : {v} mg/L")
 
-    ✅ Mengevaluasi hasil COD laboratorium
-
-    ✅ Membandingkan hasil dengan baku mutu air
-
-    ✅ Menentukan kesesuaian kualitas air
-
-    ✅ Mengacu pada PP Nomor 22 Tahun 2021
-
-    ---
-    """)
-
-    st.info("""
-    Peraturan Pemerintah Nomor 22 Tahun 2021
-    tentang Penyelenggaraan Perlindungan dan
-    Pengelolaan Lingkungan Hidup.
-    """)
-
-    st.image(
-        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21",
-        use_container_width=True
-    )
-
-# ==================================
-# EVALUASI COD
-# ==================================
-elif menu == "🧮 Evaluasi COD":
-
-    st.title("🧮 Evaluasi Kadar COD")
-
-    nama = st.text_input(
-        "Nama Sampel"
-    )
-
-    jenis_air = st.selectbox(
-        "Pilih Jenis Air",
-        [
-            "Air Baku Air Minum (Kelas 1)",
-            "Rekreasi Air (Kelas 2)",
-            "Budidaya Ikan Air Tawar (Kelas 2)",
-            "Peternakan (Kelas 2)",
-            "Perikanan (Kelas 3)",
-            "Pertanian / Irigasi (Kelas 4)"
-        ]
-    )
-
-    cod = st.number_input(
-        "Masukkan Hasil COD (mg/L)",
-        min_value=0.0,
-        format="%.2f"
-    )
-
-    if st.button("Evaluasi"):
-
-        if "Kelas 1" in jenis_air:
-            baku_mutu = 10
-
-        elif "Kelas 2" in jenis_air:
-            baku_mutu = 25
-
-        elif "Kelas 3" in jenis_air:
-            baku_mutu = 50
-
-        else:
-            baku_mutu = 100
-
-        st.subheader("📋 Hasil Evaluasi")
-
-        st.write(f"**Nama Sampel :** {nama}")
-        st.write(f"**Jenis Air :** {jenis_air}")
-        st.write(f"**COD Hasil :** {cod:.2f} mg/L")
-        st.write(f"**Baku Mutu COD :** {baku_mutu} mg/L")
-
-        if cod <= baku_mutu:
-
-            st.success(
-                f"✅ COD {cod:.2f} mg/L ≤ {baku_mutu} mg/L\n\n"
-                f"Memenuhi baku mutu untuk {jenis_air}"
-            )
-
-        else:
-
-            st.error(
-                f"❌ COD {cod:.2f} mg/L > {baku_mutu} mg/L\n\n"
-                f"Tidak memenuhi baku mutu untuk {jenis_air}"
-            )
-
-    st.markdown("---")
-
-    st.subheader("📚 Acuan Baku Mutu COD")
-
-    st.table({
-        "Kelas":[
-            "Kelas 1",
-            "Kelas 2",
-            "Kelas 3",
-            "Kelas 4"
-        ],
-        "Peruntukan":[
-            "Air Baku Air Minum",
-            "Rekreasi Air, Budidaya Ikan",
-            "Perikanan, Peternakan",
-            "Pertanian, Irigasi"
-        ],
-        "COD (mg/L)":[
-            "≤ 10",
-            "≤ 25",
-            "≤ 50",
-            "≤ 100"
-        ]
-    })
-
-# ==================================
-# SARANA PENGOLAHAN AIR
-# ==================================
-elif menu == "🌊 Sarana Pengolahan Air":
-
-    st.title("🌊 Sarana Pengolahan Air")
-
-    st.subheader("1. Koagulasi")
-    st.write(
-        "Penambahan koagulan untuk menggumpalkan partikel koloid."
-    )
-
-    st.subheader("2. Flokulasi")
-    st.write(
-        "Pembentukan flok agar mudah diendapkan."
-    )
-
-    st.subheader("3. Sedimentasi")
-    st.write(
-        "Mengendapkan flok yang telah terbentuk."
-    )
-
-    st.subheader("4. Filtrasi")
-    st.write(
-        "Penyaringan partikel yang masih tersisa."
-    )
-
-    st.subheader("5. Desinfeksi")
-    st.write(
-        "Membunuh mikroorganisme patogen menggunakan klorin, UV, atau ozon."
-    )
-
-# ==================================
-# TENTANG COD
-# ==================================
-elif menu == "ℹ️ Tentang COD":
-
-    st.title("ℹ️ Tentang COD")
-
-    st.write("""
-    Chemical Oxygen Demand (COD) merupakan jumlah oksigen
-    yang dibutuhkan untuk mengoksidasi senyawa organik
-    dalam air secara kimia.
-
-    Nilai COD yang tinggi menunjukkan tingginya
-    kandungan bahan organik yang dapat mencemari
-    badan air.
-    """)
-
-    st.info("""
-    Semakin rendah nilai COD, semakin baik kualitas air.
-    """)
-
-    st.markdown("### Referensi")
-
-    st.write("""
-    PP Nomor 22 Tahun 2021 tentang Penyelenggaraan
-    Perlindungan dan Pengelolaan Lingkungan Hidup.
-    """)
+    st.markdown("""
+    <br>
+    <i>Sumber: PP No. 22 Tahun 2021 tentang Penyelenggaraan Perlindungan dan Pengelolaan Lingkungan Hidup</i>
+    """, unsafe_allow_html=True)
