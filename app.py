@@ -1,54 +1,174 @@
 import streamlit as st
 
-st.set_page_config(page_title="Perhitungan COD Air Limbah")
-
-st.title("Perhitungan COD Air Limbah")
-
-inlet = st.number_input(
-    "COD Inlet (mg/L)",
-    min_value=0.0,
-    format="%.2f"
+# =====================================
+# KONFIGURASI HALAMAN
+# =====================================
+st.set_page_config(
+    page_title="Evaluasi Kadar COD Air",
+    page_icon="💧",
+    layout="wide"
 )
 
-outlet = st.number_input(
-    "COD Outlet (mg/L)",
-    min_value=0.0,
-    format="%.2f"
+# =====================================
+# CSS
+# =====================================
+st.markdown("""
+<style>
+
+.stApp{
+    background: linear-gradient(135deg,#74ebd5,#ACB6E5);
+}
+
+.block-container{
+    background: rgba(255,255,255,0.92);
+    padding: 2rem;
+    border-radius: 20px;
+}
+
+[data-testid="stSidebar"]{
+    background-color:#003366;
+}
+
+[data-testid="stSidebar"] *{
+    color:white;
+}
+
+h1,h2,h3{
+    color:#003366;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# =====================================
+# SIDEBAR
+# =====================================
+menu = st.sidebar.radio(
+    "Menu",
+    [
+        "🏠 Beranda",
+        "🧮 Evaluasi COD",
+        "📚 Referensi"
+    ]
 )
 
-if st.button("Hitung"):
+# =====================================
+# BERANDA
+# =====================================
+if menu == "🏠 Beranda":
 
-    if inlet == 0:
-        st.warning("Masukkan nilai COD Inlet terlebih dahulu.")
-    else:
+    st.title("💧 Sistem Evaluasi Kadar COD Air")
 
-        efisiensi = ((inlet - outlet) / inlet) * 100
+    st.markdown("""
+    ### Selamat Datang
 
-        st.subheader("Hasil Perhitungan")
+    Aplikasi ini digunakan untuk mengevaluasi kualitas air berdasarkan parameter **Chemical Oxygen Demand (COD)**.
 
-        st.write(
-            f"Efisiensi Pengolahan = {efisiensi:.2f}%"
-        )
+    Hasil COD akan dibandingkan dengan baku mutu sesuai **PP Nomor 22 Tahun 2021** berdasarkan kelas dan peruntukan air.
+    """)
 
-        st.write(
-            f"COD Outlet = {outlet:.2f} mg/L"
-        )
+    st.info("""
+    Pilih menu Evaluasi COD untuk mulai melakukan penilaian kualitas air.
+    """)
 
-        baku_mutu = 10
+# =====================================
+# EVALUASI COD
+# =====================================
+elif menu == "🧮 Evaluasi COD":
 
-        st.info(
-            "Baku Mutu Air Kelas 1 (Air Baku Air Minum) "
-            "berdasarkan PP Nomor 22 Tahun 2021: "
-            "COD ≤ 10 mg/L"
-        )
+    st.title("🧮 Evaluasi Kadar COD")
 
-        if outlet <= baku_mutu:
-            st.success(
-                f"COD Outlet = {outlet:.2f} mg/L ≤ 10 mg/L\n\n"
-                "Memenuhi Baku Mutu Air Kelas 1."
-            )
+    nama = st.text_input("Nama Sampel")
+
+    jenis_air = st.selectbox(
+        "Pilih Jenis Air",
+        [
+            "Air Baku Air Minum (Kelas 1)",
+            "Rekreasi Air (Kelas 2)",
+            "Perikanan (Kelas 3)",
+            "Irigasi / Pertanian (Kelas 4)"
+        ]
+    )
+
+    cod = st.number_input(
+        "Masukkan Nilai COD (mg/L)",
+        min_value=0.0,
+        format="%.2f"
+    )
+
+    if st.button("Evaluasi"):
+
+        if "Kelas 1" in jenis_air:
+            baku_mutu = 10
+
+        elif "Kelas 2" in jenis_air:
+            baku_mutu = 25
+
+        elif "Kelas 3" in jenis_air:
+            baku_mutu = 50
+
         else:
-            st.error(
-                f"COD Outlet = {outlet:.2f} mg/L > 10 mg/L\n\n"
-                "Tidak Memenuhi Baku Mutu Air Kelas 1."
+            baku_mutu = 100
+
+        st.subheader("📋 Hasil Evaluasi")
+
+        st.write(f"**Nama Sampel:** {nama}")
+        st.write(f"**Jenis Air:** {jenis_air}")
+        st.write(f"**COD Hasil:** {cod:.2f} mg/L")
+        st.write(f"**Baku Mutu COD:** {baku_mutu} mg/L")
+
+        if cod <= baku_mutu:
+
+            st.success(
+                f"""
+                ✅ MEMENUHI BAKU MUTU
+
+                COD = {cod:.2f} mg/L
+
+                Baku Mutu = {baku_mutu} mg/L
+                """
             )
+
+        else:
+
+            st.error(
+                f"""
+                ❌ TIDAK MEMENUHI BAKU MUTU
+
+                COD = {cod:.2f} mg/L
+
+                Baku Mutu = {baku_mutu} mg/L
+                """
+            )
+
+# =====================================
+# REFERENSI
+# =====================================
+elif menu == "📚 Referensi":
+
+    st.title("📚 Referensi Baku Mutu COD")
+
+    st.write("""
+    Acuan: PP Nomor 22 Tahun 2021
+    """)
+
+    st.table({
+        "Kelas": [
+            "Kelas 1",
+            "Kelas 2",
+            "Kelas 3",
+            "Kelas 4"
+        ],
+        "Peruntukan": [
+            "Air Baku Air Minum",
+            "Rekreasi Air",
+            "Perikanan",
+            "Irigasi / Pertanian"
+        ],
+        "COD (mg/L)": [
+            "≤ 10",
+            "≤ 25",
+            "≤ 50",
+            "≤ 100"
+        ]
+    })
