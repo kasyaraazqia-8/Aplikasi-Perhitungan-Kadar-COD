@@ -10,24 +10,21 @@ st.set_page_config(
 )
 
 # ======================================
-# CSS & BACKGROUND
+# CSS DAN BACKGROUND
 # ======================================
-st.markdown("""
-<style>
-
 st.markdown("""
 <style>
 
 /* Background Air */
 .stApp{
-    background-image: url("https://images.unsplash.com/photo-1544551763-46a013bb70d5");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-image:url("https://images.unsplash.com/photo-1544551763-46a013bb70d5");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
 }
 
-/* Efek gelap transparan agar teks tetap terbaca */
+/* Overlay */
 .stApp::before{
     content:"";
     position:fixed;
@@ -35,21 +32,25 @@ st.markdown("""
     left:0;
     width:100%;
     height:100%;
-    background:rgba(0,0,0,0.25);
+    background:rgba(0,0,0,0.20);
     z-index:-1;
 }
 
-/* Kotak konten */
+/* Kontainer */
 .block-container{
-    background:rgba(255,255,255,0.75);
+    background:rgba(255,255,255,0.80);
     padding:2rem;
     border-radius:20px;
-    box-shadow:0 0 20px rgba(0,0,0,0.3);
+    box-shadow:0px 0px 20px rgba(0,0,0,0.3);
 }
 
 /* Sidebar */
 [data-testid="stSidebar"]{
-    background:rgba(0,51,102,0.95);
+    background:linear-gradient(
+        180deg,
+        #003366,
+        #006699
+    );
 }
 
 [data-testid="stSidebar"] *{
@@ -59,16 +60,20 @@ st.markdown("""
 /* Judul */
 h1,h2,h3{
     color:#003366;
-    font-weight:bold;
 }
 
 /* Tombol */
 .stButton > button{
-    background:#0099ff;
+    background-color:#0099ff;
     color:white;
     border:none;
     border-radius:10px;
     font-weight:bold;
+    width:100%;
+}
+
+.stButton > button:hover{
+    background-color:#007acc;
 }
 
 </style>
@@ -82,7 +87,7 @@ menu = st.sidebar.radio(
     [
         "🏠 Beranda",
         "🧮 Perhitungan COD",
-        "📚 Referensi Baku Mutu"
+        "📚 Referensi"
     ]
 )
 
@@ -91,36 +96,29 @@ menu = st.sidebar.radio(
 # ======================================
 if menu == "🏠 Beranda":
 
-    st.title("💧 Sistem Perhitungan dan Evaluasi COD Air")
+    st.title("💧 SISTEM PERHITUNGAN KADAR COD AIR")
 
     st.markdown("""
     ### Selamat Datang
 
     Aplikasi ini digunakan untuk:
 
-    ✅ Menghitung COD dari data titrasi
+    ✅ Menghitung kadar COD dari data titrasi
 
-    ✅ Membandingkan hasil COD dengan baku mutu
+    ✅ Membandingkan hasil dengan baku mutu PP No.22 Tahun 2021
 
-    ✅ Menentukan kesesuaian kualitas air
+    ✅ Menentukan kesesuaian kualitas air berdasarkan peruntukannya
 
-    ✅ Mengacu pada PP Nomor 22 Tahun 2021
-
-    ---
-    """)
-
-    st.info("""
-    Rumus COD yang digunakan:
+    ### Rumus COD
 
     COD = ((A - B) × N × 8000) / V
 
-    A = Volume blanko (mL)
+    Keterangan:
 
-    B = Volume sampel (mL)
-
-    N = Normalitas FAS
-
-    V = Volume sampel yang digunakan (mL)
+    - A = Volume blanko (mL)
+    - B = Volume sampel (mL)
+    - N = Normalitas FAS
+    - V = Volume sampel (mL)
     """)
 
 # ======================================
@@ -138,7 +136,7 @@ elif menu == "🧮 Perhitungan COD":
             "Air Baku Air Minum (Kelas 1)",
             "Rekreasi Air (Kelas 2)",
             "Perikanan (Kelas 3)",
-            "Irigasi / Pertanian (Kelas 4)"
+            "Irigasi/Pertanian (Kelas 4)"
         ]
     )
 
@@ -184,10 +182,10 @@ elif menu == "🧮 Perhitungan COD":
 
         st.subheader("📋 Hasil Perhitungan")
 
-        st.write(f"Nama Sampel : {nama}")
-        st.write(f"Jenis Air : {jenis_air}")
+        st.write(f"**Nama Sampel:** {nama}")
+        st.write(f"**Jenis Air:** {jenis_air}")
 
-        st.markdown("### Perhitungan")
+        st.markdown("### Substitusi Rumus")
 
         st.latex(
             rf"COD=\frac{{({A}-{B}) \times {N} \times 8000}}{{{V}}}"
@@ -211,7 +209,7 @@ elif menu == "🧮 Perhitungan COD":
 
                 COD = {cod:.2f} mg/L
 
-                Baku Mutu = {baku_mutu} mg/L
+                COD ≤ {baku_mutu} mg/L
                 """
             )
 
@@ -223,50 +221,48 @@ elif menu == "🧮 Perhitungan COD":
 
                 COD = {cod:.2f} mg/L
 
-                Baku Mutu = {baku_mutu} mg/L
+                COD > {baku_mutu} mg/L
                 """
             )
 
 # ======================================
 # REFERENSI
 # ======================================
-elif menu == "📚 Referensi Baku Mutu":
+elif menu == "📚 Referensi":
 
     st.title("📚 Referensi Baku Mutu COD")
 
-    st.write("""
-    Acuan: PP Nomor 22 Tahun 2021
-    """)
+    st.write(
+        "Acuan: PP Nomor 22 Tahun 2021"
+    )
 
     st.table({
-        "Kelas": [
+        "Kelas":[
             "Kelas 1",
             "Kelas 2",
             "Kelas 3",
             "Kelas 4"
         ],
-        "Peruntukan": [
+        "Peruntukan":[
             "Air Baku Air Minum",
             "Rekreasi Air",
             "Perikanan",
-            "Irigasi / Pertanian"
+            "Irigasi/Pertanian"
         ],
-        "COD (mg/L)": [
-            "≤ 10",
-            "≤ 25",
-            "≤ 50",
-            "≤ 100"
+        "COD Maksimum (mg/L)":[
+            10,
+            25,
+            50,
+            100
         ]
     })
 
     st.info("""
-    Interpretasi:
+    Kelas 1 : Air baku air minum
 
-    Kelas 1 = Air baku air minum
+    Kelas 2 : Rekreasi air
 
-    Kelas 2 = Rekreasi air
+    Kelas 3 : Perikanan
 
-    Kelas 3 = Perikanan
-
-    Kelas 4 = Irigasi/Pertanian
+    Kelas 4 : Irigasi/Pertanian
     """)
