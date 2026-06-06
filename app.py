@@ -15,42 +15,60 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* Background air */
-.stApp {
-    background-image: url("https://images.unsplash.com/photo-1500375592092-40eb2168fd21");
+st.markdown("""
+<style>
+
+/* Background Air */
+.stApp{
+    background-image: url("https://images.unsplash.com/photo-1544551763-46a013bb70d5");
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-/* Kontainer utama */
-.block-container {
-    background: rgba(255,255,255,0.92);
-    padding: 2rem;
-    border-radius: 20px;
+/* Efek gelap transparan agar teks tetap terbaca */
+.stApp::before{
+    content:"";
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.25);
+    z-index:-1;
+}
+
+/* Kotak konten */
+.block-container{
+    background:rgba(255,255,255,0.75);
+    padding:2rem;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.3);
 }
 
 /* Sidebar */
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0066cc, #003366);
+[data-testid="stSidebar"]{
+    background:rgba(0,51,102,0.95);
 }
 
-[data-testid="stSidebar"] * {
-    color: white;
+[data-testid="stSidebar"] *{
+    color:white;
 }
 
 /* Judul */
-h1, h2, h3 {
-    color: #003366;
+h1,h2,h3{
+    color:#003366;
+    font-weight:bold;
 }
 
 /* Tombol */
-.stButton > button {
-    background-color: #0088cc;
-    color: white;
-    border-radius: 10px;
-    border: none;
-    font-weight: bold;
+.stButton > button{
+    background:#0099ff;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
 }
 
 </style>
